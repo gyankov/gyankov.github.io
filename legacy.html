@@ -9,9 +9,57 @@
   <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
   <script src="/js/all.min.js"></script>
 <body>
-    <input id="test"/>
+    <div id="orgChart"></div>
     <script>
-        $("#test").kendoDatePicker();
+
+var data = [
+            { id: 1, name: "Павел Петров Георгиев", expanded: true, egn: "4511057694", propertySizeSqm: 100},
+            { id: 2, name: "Евлоги Павлов Георгиев", expanded: true, parentId: 1, egn: "6503228403"},
+            { id: 3, name: "Мария Павловa Георгиевa", expanded: true, parentId: 1, egn: "6907118473"},
+            { id: 4, name: "Милен Петров Евтимов", expanded: true, parentId: 3, egn: "9503268473"},
+        ];
+
+        $("#orgChart").kendoOrgChart({
+            template:
+                '<div class="k-card">'+
+                    '<div class="k-card-header">' +
+                        '<h5 class="k-card-title">#:name#</h5>' +
+                        '<h6 class="k-card-subtitle">ЕГН: #:egn#</h6>' +
+                    '</div>'+
+                    '<div class="k-card-body">' +
+                        '#if(parentId){#' +
+                            '<p> #:calculateInheritance(data)#</p>' +
+                        '#} else {#' +
+                            '<p>Размер на имота: #:propertySizeSqm# кв.м.</p>' +
+                        '#}#' +
+                    '</div>' +
+                    '<div class="k-card-actions k-card-actions-stretched">' +
+                        '<span class="k-card-action"><span class="k-button k-flat k-primary"><span class="k-icon k-i-plus"></span>Добави насленик</span></span>' +
+                        '<span class="k-card-action"><span class="k-button k-flat k-primary"><span class="k-icon k-i-edit"></span>Редактирай</span></span>' +
+                        '<span class="k-card-action"><span class="k-button k-flat k-primary"><span class="k-icon k-i-close"></span>Изтрий</span></span>' +
+                    '</div>' +
+                '</div>'
+            ,
+            dataSource: data
+        });
+
+        function calculateInheritance(data) {
+            var chartInstance =  $("#orgChart").data('kendoOrgChart');
+            var dataInstance = chartInstance.dataSource.get(data.id);
+            var parent = chartInstance.dataSource.get(data.parentId);
+            var siblingsCount = chartInstance.dataSource._data.filter(x=> x.parentId === data.parentId).length;
+            var inheritedPortion = parent.propertySizeSqm / siblingsCount;
+            dataInstance.propertySizeSqm = inheritedPortion;
+            debugger
+            return `Наследство: ${inheritedPortion} кв.м.`;
+        }
     </script>
+
+    <style>
+        .k-orgchart-card {
+            width: 330px;
+            border-width: 1px;
+        }
+    </style>
 </body>
 </html>
